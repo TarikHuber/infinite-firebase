@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { render } from 'react-dom'
 import firebase from 'firebase'
-import Example from '../../src'
 import InfiniteRTDList from '../../src/InfiniteRTDList'
 
 const config = {
@@ -16,17 +15,16 @@ const config = {
 const firebaseApp = firebase.initializeApp(config)
 
 class Demo extends Component {
-  componentWillMount () {
+  componentWillMount() {
     firebaseApp.database().ref('infinite_list').once('value', snap => {
       console.log(snap)
     })
   }
 
-  render () {
+  render() {
     return <div>
       <h1>infinite-firebase Demo</h1>
       <InfiniteRTDList firebaseRef={firebaseApp.database().ref('infinite_list')} />
-      <Example />
     </div>
   }
 }
