@@ -1,6 +1,8 @@
 {
   "rules": {
-    ".read": "auth != null",
-    ".write": "auth != null"
+    "infinite_list": {
+      ".read": true,
+      ".write": false
+    }
   }
 }
