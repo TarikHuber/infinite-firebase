@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { render } from 'react-dom'
 import firebaseApp from './firebase'
-import InfiniteRTDList from '../../src/InfiniteRTDList'
+import InfiniteRTDList from '../../src'
 
 class Demo extends Component {
 
@@ -22,10 +22,6 @@ class Demo extends Component {
         </div>
       )
     }
-
-
-
-
   }
 
   render() {
