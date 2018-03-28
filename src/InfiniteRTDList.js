@@ -70,7 +70,7 @@ class InfiniteRTDList extends Component {
 
   loadRows = (startIndex, stopIndex, calls = 0) => {
     const { firebaseApp, deferTime, deferCalls, path } = this.getProps()
-    const { pages } = this.state
+    const { pages, ref } = this.state
     const rowsToLoad = stopIndex - startIndex + 1
 
     if (calls > deferCalls) {
@@ -106,6 +106,26 @@ class InfiniteRTDList extends Component {
         this.addElement(snap, pageIndex, lastIndex)
       })
 
+      if (lastIndex && !ref && pages[lastIndex - 1]) {
+
+        /*
+
+        //EXPERIMENTAL!!!
+
+        const nRef = firebaseApp.database().ref(path).orderByKey().startAt(pages[lastIndex - 1]).limitToFirst(30)
+
+        this.setState({ ref: nRef }, () => {
+          nRef.on('child_added', snap => {
+            console.log('test')
+            console.log(snap.val())
+            this.loadRows(startIndex, stopIndex + 1, 0)
+            nRef.off()
+          })
+        })
+        */
+      }
+
+
     }).catch(e => {
       console.log(e)
     })
@@ -118,10 +138,11 @@ class InfiniteRTDList extends Component {
     const { list, values, lastIndex } = this.state
 
     const uid = list[index] ? list[index] : null
-    const val = values[uid] ? values[uid] : null
+    const val = values[uid] !== undefined ? values[uid] : undefined
     let isLoading = true
     let isOfset = false
     let isLoaded = false
+    let isDeleted = false
 
     if (lastIndex !== undefined && index >= lastIndex) {
       isLoading = false
@@ -134,6 +155,10 @@ class InfiniteRTDList extends Component {
       isLoading = false
     }
 
+    if (val === null) {
+      isDeleted = true
+    }
+
     const props = {
       key,
       index,
@@ -144,6 +169,7 @@ class InfiniteRTDList extends Component {
       isLoading,
       isLoaded,
       isOfset,
+      isDeleted,
       setValue: this.setValue,
       ...this.props
     }
@@ -152,7 +178,6 @@ class InfiniteRTDList extends Component {
       {...props}
     />
 
-    //renderRow({ key, index, style, uid, val, lastIndex, isLoading, isLoaded, isOfset })
   }
 
   render() {

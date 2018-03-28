@@ -5,11 +5,11 @@ import InfiniteRTDList from '../../src'
 
 class Demo extends Component {
 
-  renderRow = ({ key, index, style, uid, value, lastIndex, isLoading, isLoaded }) => {
+  renderRow = ({ key, index, style, uid, value, lastIndex, isLoading, isLoaded, isDeleted }) => {
 
     if (isLoaded) {
       return (
-        <div key={key} style={{ ...style }}>
+        <div key={key} style={{ ...style, color: isDeleted ? 'red' : undefined }}>
           {index} {uid} {value} {lastIndex}
         </div>
       )

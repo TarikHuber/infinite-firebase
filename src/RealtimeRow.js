@@ -43,10 +43,17 @@ class RealtimeRow extends Component {
 
 
   render() {
-    const { renderRow, val } = this.props
+    const { renderRow, val, uid } = this.props
     const { value } = this.state
 
-    return renderRow({ ...this.props, value: value ? value : val })
+    const v = value !== undefined ? value : val
+    let isDeleted = false
+
+    if (v === null) {
+      isDeleted = true
+    }
+
+    return renderRow({ ...this.props, value: v, isDeleted })
   }
 }
 
