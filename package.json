@@ -1,6 +1,6 @@
 {
   "name": "infinite-firebase",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "React components for infinite lists using the Firebase Realtime Database",
   "main": "lib/index.js",
   "module": "es/index.js",
