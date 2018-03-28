@@ -1,4 +1,4 @@
-export InfiniteRTDList from './InfiniteRTDList'
+import InfiniteRTDList from './InfiniteRTDList'
 
 
-export default from './InfiniteRTDList'
+export default InfiniteRTDList
