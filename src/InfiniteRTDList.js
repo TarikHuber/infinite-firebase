@@ -38,16 +38,19 @@ class InfiniteRTDList extends Component {
     })
   }
 
-  addElement = (snap, pageIndex) => {
+  addElement = (snap, pageIndex, lastIndex) => {
     const { pages, list, values } = this.state
 
     if (list.indexOf(snap.key) === -1) {
       list.push(snap.key)
 
+      //console.log(lastIndex)
+
       return this.setState({
         list,
         pages: { ...pages, [list.length - 1]: snap.key },
-        values: { ...values, [snap.key]: snap.val() }
+        values: { ...values, [snap.key]: snap.val() },
+        lastIndex
       })
     }
 
@@ -62,6 +65,7 @@ class InfiniteRTDList extends Component {
   loadRows = (startIndex, stopIndex, calls = 0) => {
     const { firebaseRef, deferTime, deferCalls } = this.getProps()
     const { pages } = this.state
+    const rowsToLoad = stopIndex - startIndex + 1
 
     //console.log(this.state)
     //console.log(`start ${startIndex} end ${stopIndex} calls ${calls} key ${pages[startIndex]}`)
@@ -75,21 +79,32 @@ class InfiniteRTDList extends Component {
     let query
 
     if (startIndex !== 0 && pages[startIndex - 1]) {
-      query = firebaseRef.orderByKey().startAt(pages[startIndex - 1]).limitToFirst(stopIndex - startIndex + 1)
+      query = firebaseRef.orderByKey().startAt(pages[startIndex - 1]).limitToFirst(rowsToLoad)
     } else if (startIndex === 0) {
-      query = firebaseRef.orderByKey().limitToFirst(stopIndex - startIndex + 1)
+      query = firebaseRef.orderByKey().limitToFirst(rowsToLoad)
     } else {
       return this.timeOutPromise(deferTime).then(() => {
         return this.loadRows(startIndex, stopIndex, ++calls)
       })
     }
 
+
+
     return query.once('value', snapshot => {
       let pageIndex = startIndex
+      const rowsLoaded = snapshot.numChildren()
+      let lastIndex = undefined
+
+      if (rowsToLoad > rowsLoaded) {
+        lastIndex = pageIndex + snapshot.numChildren() - 1
+      }
+
+
       snapshot.forEach(snap => {
         pageIndex++
-        this.addElement(snap, pageIndex)
+        this.addElement(snap, pageIndex, lastIndex)
       })
+
     }).catch(e => {
       console.log(e)
     })
@@ -99,13 +114,26 @@ class InfiniteRTDList extends Component {
 
   rowRenderer = ({ key, index, style }) => {
     const { renderRow } = this.props
-
-    const { list, values } = this.state
+    const { list, values, lastIndex } = this.state
 
     const uid = list[index] ? list[index] : null
-    const object = values[uid] ? values[uid] : null
+    const val = values[uid] ? values[uid] : null
+    let isLoading = true
+    let isOfset = false
+    let isLoaded = false
 
-    return renderRow({ key, index, style, uid, object })
+    if (lastIndex !== undefined && index >= lastIndex) {
+      isLoading = false
+    } else {
+      isOfset = true
+    }
+
+    if (uid) {
+      isLoaded = true
+      isLoading = false
+    }
+
+    return renderRow({ key, index, style, uid, val, lastIndex, isLoading, isLoaded, isOfset })
   }
 
   render() {
