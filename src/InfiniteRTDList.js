@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader'
 import List from 'react-virtualized/dist/commonjs/List'
-
+import RealtimeRow from './RealtimeRow'
 
 const defaults = {
   deferTime: 2000,
@@ -44,8 +44,6 @@ class InfiniteRTDList extends Component {
     if (list.indexOf(snap.key) === -1) {
       list.push(snap.key)
 
-      //console.log(lastIndex)
-
       return this.setState({
         list,
         pages: { ...pages, [list.length - 1]: snap.key },
@@ -57,31 +55,34 @@ class InfiniteRTDList extends Component {
 
   }
 
+  setValue = (uid, val) => {
+    const { pages, list, values } = this.state
+
+    this.setState({
+      values: { ...values, [uid]: val }
+    })
+  }
+
 
   getProps = () => {
     return { ...defaults, ...this.props }
   }
 
   loadRows = (startIndex, stopIndex, calls = 0) => {
-    const { firebaseRef, deferTime, deferCalls } = this.getProps()
+    const { firebaseApp, deferTime, deferCalls, path } = this.getProps()
     const { pages } = this.state
     const rowsToLoad = stopIndex - startIndex + 1
-
-    //console.log(this.state)
-    //console.log(`start ${startIndex} end ${stopIndex} calls ${calls} key ${pages[startIndex]}`)
 
     if (calls > deferCalls) {
       return
     }
 
-    //console.log('Time out load. Calls', calls)
-
     let query
 
     if (startIndex !== 0 && pages[startIndex - 1]) {
-      query = firebaseRef.orderByKey().startAt(pages[startIndex - 1]).limitToFirst(rowsToLoad)
+      query = firebaseApp.database().ref(path).orderByKey().startAt(pages[startIndex - 1]).limitToFirst(rowsToLoad)
     } else if (startIndex === 0) {
-      query = firebaseRef.orderByKey().limitToFirst(rowsToLoad)
+      query = firebaseApp.database().ref(path).orderByKey().limitToFirst(rowsToLoad)
     } else {
       return this.timeOutPromise(deferTime).then(() => {
         return this.loadRows(startIndex, stopIndex, ++calls)
@@ -113,7 +114,7 @@ class InfiniteRTDList extends Component {
 
 
   rowRenderer = ({ key, index, style }) => {
-    const { renderRow } = this.props
+    const { renderRow, firebaseApp } = this.props
     const { list, values, lastIndex } = this.state
 
     const uid = list[index] ? list[index] : null
@@ -133,7 +134,25 @@ class InfiniteRTDList extends Component {
       isLoading = false
     }
 
-    return renderRow({ key, index, style, uid, val, lastIndex, isLoading, isLoaded, isOfset })
+    const props = {
+      key,
+      index,
+      style,
+      uid,
+      val,
+      lastIndex,
+      isLoading,
+      isLoaded,
+      isOfset,
+      setValue: this.setValue,
+      ...this.props
+    }
+
+    return <RealtimeRow
+      {...props}
+    />
+
+    //renderRow({ key, index, style, uid, val, lastIndex, isLoading, isLoaded, isOfset })
   }
 
   render() {
@@ -174,7 +193,7 @@ class InfiniteRTDList extends Component {
 }
 
 InfiniteRTDList.propTypes = {
-  firebaseRef: PropTypes.any
+  firebaseApp: PropTypes.any
 }
 
 export default InfiniteRTDList

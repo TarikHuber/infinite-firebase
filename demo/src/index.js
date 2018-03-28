@@ -5,12 +5,12 @@ import InfiniteRTDList from '../../src'
 
 class Demo extends Component {
 
-  renderRow = ({ key, index, style, uid, val, lastIndex, isLoading, isLoaded }) => {
+  renderRow = ({ key, index, style, uid, value, lastIndex, isLoading, isLoaded }) => {
 
     if (isLoaded) {
       return (
         <div key={key} style={{ ...style }}>
-          {index} {uid} {val} {lastIndex}
+          {index} {uid} {value} {lastIndex}
         </div>
       )
     }
@@ -22,13 +22,16 @@ class Demo extends Component {
         </div>
       )
     }
+
+    return null
   }
 
   render() {
     return <div>
       <h1>infinite-firebase Demo</h1>
       <InfiniteRTDList
-        firebaseRef={firebaseApp.database().ref('infinite_list')}
+        firebaseApp={firebaseApp}
+        path={'infinite_list'}
         renderRow={this.renderRow}
         listProps={{ height: 400, width: 700, rowHeight: 20 }}
       />
