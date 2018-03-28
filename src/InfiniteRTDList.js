@@ -3,6 +3,16 @@ import PropTypes from 'prop-types'
 import InfiniteLoader from 'react-virtualized/dist/commonjs/InfiniteLoader'
 import List from 'react-virtualized/dist/commonjs/List'
 
+
+const defaults = {
+  deferTime: 2000,
+  deferCalls: 3,
+  minimumBatchSize: 50,
+  threshold: 50,
+  offset: 30
+}
+
+
 class InfiniteRTDList extends Component {
   constructor(props) {
     super(props)
@@ -45,18 +55,22 @@ class InfiniteRTDList extends Component {
   }
 
 
+  getProps = () => {
+    return { ...defaults, ...this.props }
+  }
+
   loadRows = (startIndex, stopIndex, calls = 0) => {
-    const { firebaseRef } = this.props
+    const { firebaseRef, deferTime, deferCalls } = this.getProps()
     const { pages } = this.state
 
-    console.log(this.state)
-    console.log(`start ${startIndex} end ${stopIndex} calls ${calls} key ${pages[startIndex]}`)
+    //console.log(this.state)
+    //console.log(`start ${startIndex} end ${stopIndex} calls ${calls} key ${pages[startIndex]}`)
 
-    if (calls > 3) {
+    if (calls > deferCalls) {
       return
     }
 
-    console.log('Time out load. Calls', calls)
+    //console.log('Time out load. Calls', calls)
 
     let query
 
@@ -65,7 +79,7 @@ class InfiniteRTDList extends Component {
     } else if (startIndex === 0) {
       query = firebaseRef.orderByKey().limitToFirst(stopIndex - startIndex + 1)
     } else {
-      return this.timeOutPromise(2000).then(() => {
+      return this.timeOutPromise(deferTime).then(() => {
         return this.loadRows(startIndex, stopIndex, ++calls)
       })
     }
@@ -83,56 +97,47 @@ class InfiniteRTDList extends Component {
   }
 
 
-  loadMoreRows = ({ startIndex, stopIndex }) => {
-
-    return this.loadRows(startIndex, stopIndex)
-  }
-
   rowRenderer = ({ key, index, style }) => {
+    const { renderRow } = this.props
 
     const { list, values } = this.state
 
-    const uid = list[index] ? list[index] : ''
-    const object = values[uid] ? values[uid] : ''
+    const uid = list[index] ? list[index] : null
+    const object = values[uid] ? values[uid] : null
 
-
-    return (
-      <div
-        key={key}
-        style={{ ...style }}
-      >
-
-        {index} {!uid && 'Loading...'} {uid} {object}
-      </div>
-    )
+    return renderRow({ key, index, style, uid, object })
   }
 
   render() {
-    const { intl, muiTheme } = this.props
+    const {
+      offset,
+      rowCount,
+      minimumBatchSize,
+      threshold,
+      listProps,
+      loaderProps,
+      height
+    } = this.getProps()
     const { values } = this.state
-
-    const count = Object.keys(values).length + 30
-    //const count = 2300
+    const count = rowCount ? rowCount : Object.keys(values).length + offset
 
     return (
-
       <InfiniteLoader
         isRowLoaded={this.isRowLoaded}
-        loadMoreRows={this.loadMoreRows}
+        loadMoreRows={({ startIndex, stopIndex }) => { this.loadRows(startIndex, stopIndex) }}
         rowCount={count}
-        minimumBatchSize={50}
-        threshold={50}
+        minimumBatchSize={minimumBatchSize}
+        threshold={threshold}
+        {...loaderProps}
       >
         {({ onRowsRendered, registerChild }) => (
           <List
-            height={400}
             onRowsRendered={onRowsRendered}
-
             ref={registerChild}
             rowCount={count}
-            rowHeight={20}
             rowRenderer={this.rowRenderer}
-            width={700}
+            height={height}
+            {...listProps}
           />
         )}
       </InfiniteLoader>
@@ -141,7 +146,7 @@ class InfiniteRTDList extends Component {
 }
 
 InfiniteRTDList.propTypes = {
-  firebaseApp: PropTypes.object.any
+  firebaseRef: PropTypes.any
 }
 
 export default InfiniteRTDList

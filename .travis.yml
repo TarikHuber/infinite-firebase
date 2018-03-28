@@ -18,13 +18,21 @@ after_success:
   - cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
 
 deploy:
-  provider: npm
-  skip_cleanup: true
-  email: $NPM_EMAIL
-  api_key: $NPM_TOKEN
-  on:
-    branch: master
-    condition: $TRAVIS_PULL_REQUEST = false
+  - provider: pages
+    skip_cleanup: true
+    github_token: $GITHUB_TOKEN
+    local_dir: demo/dist
+    on:
+      branch: master
+      condition: $TRAVIS_PULL_REQUEST = false
+
+  - provider: npm
+    skip_cleanup: true
+    email: $NPM_EMAIL
+    api_key: $NPM_TOKEN
+    on:
+      branch: master
+      condition: $TRAVIS_PULL_REQUEST = false
 
 branches:
   only:
