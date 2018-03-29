@@ -19,6 +19,3 @@ For now it doesn't support filtering or sorting by value. But I'm working on it 
 Don't forget that this is still a pre-release so that the API can have breaking changes in very short timelines.
 
 Any kind of help and suggestions are welcome :)
-
-
-
