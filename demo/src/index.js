@@ -45,16 +45,43 @@ class Demo extends Component {
   }
 
   render() {
+    const { isReverse } = this.state
+
     return <div style={{ display: 'flex' }}>
       <div>
         <a href="https://github.com/TarikHuber/infinite-firebase" target='_blank' >GitHub</a>
+        <br />
+        <br />
+        <input
+          type="checkbox"
+          id="isReverse"
+          name="isReverse"
+          onChange={(e) => {
+            this.setState({ isReverse: e.target.checked })
+          }}
+
+        /> Reverse order
         <h1>infinite-firebase Demo</h1>
-        <InfiniteRTDList
-          firebaseApp={firebaseApp}
-          path={'infinite_list'}
-          renderRow={this.renderRow}
-          listProps={{ height: 400, width: 700, rowHeight: 20 }}
-        />
+
+        {!isReverse &&
+          <InfiniteRTDList
+            firebaseApp={firebaseApp}
+            path={'infinite_list'}
+            isReverse={false}
+            renderRow={this.renderRow}
+            listProps={{ height: 400, width: 700, rowHeight: 20 }}
+          />
+        }
+        {isReverse &&
+          <InfiniteRTDList
+            firebaseApp={firebaseApp}
+            path={'infinite_list'}
+            isReverse={true}
+            renderRow={this.renderRow}
+            listProps={{ height: 400, width: 700, rowHeight: 20 }}
+          />
+        }
+
       </div>
 
       <Manipulations

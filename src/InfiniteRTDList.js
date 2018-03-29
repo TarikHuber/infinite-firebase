@@ -71,7 +71,7 @@ class InfiniteRTDList extends Component {
   }
 
   loadRows = (startIndex, stopIndex, calls = 0) => {
-    const { firebaseApp, deferTime, deferCalls, path, offset } = this.getProps()
+    const { firebaseApp, deferTime, deferCalls, path, offset, isReverse } = this.getProps()
     const { pages, ref } = this.state
     const rowsToLoad = stopIndex - startIndex + 1
 
@@ -82,15 +82,23 @@ class InfiniteRTDList extends Component {
     let query
 
     if (startIndex !== 0 && pages[startIndex - 1]) {
-      query = firebaseApp.database().ref(path).orderByKey().startAt(pages[startIndex - 1]).limitToFirst(rowsToLoad)
+      if (isReverse) {
+        query = firebaseApp.database().ref(path).orderByKey().endAt(pages[startIndex - 1]).limitToLast(rowsToLoad)
+      } else {
+        query = firebaseApp.database().ref(path).orderByKey().startAt(pages[startIndex - 1]).limitToFirst(rowsToLoad)
+      }
+
     } else if (startIndex === 0) {
-      query = firebaseApp.database().ref(path).orderByKey().limitToFirst(rowsToLoad)
+      if (isReverse) {
+        query = firebaseApp.database().ref(path).orderByKey().limitToLast(rowsToLoad)
+      } else {
+        query = firebaseApp.database().ref(path).orderByKey().limitToFirst(rowsToLoad)
+      }
     } else {
       return this.timeOutPromise(deferTime).then(() => {
         return this.loadRows(startIndex, stopIndex, ++calls)
       })
     }
-
 
 
     return query.once('value', snapshot => {
@@ -102,7 +110,17 @@ class InfiniteRTDList extends Component {
         lastIndex = pageIndex + snapshot.numChildren() - 1
       }
 
+      let list = []
+
       snapshot.forEach(snap => {
+        list.push(snap)
+      })
+
+      if (isReverse) {
+        list = list.reverse()
+      }
+
+      list.forEach(snap => {
         pageIndex++
         this.addElement(snap, pageIndex, lastIndex)
       })
@@ -116,7 +134,13 @@ class InfiniteRTDList extends Component {
           ref.off()
         }
 
-        const nRef = firebaseApp.database().ref(path).orderByKey().limitToFirst(offset)
+        let nRef
+
+        if (isReverse) {
+          nRef = firebaseApp.database().ref(path).orderByKey().limitToLast(offset)
+        } else {
+          nRef = firebaseApp.database().ref(path).orderByKey().limitToFirst(offset)
+        }
 
         this.setState({ list: [] })
 

@@ -8,7 +8,13 @@ In the demo you can add as many rows as you want and "try" to scroll to the end 
 
 It is "firebasy" and supports realtime changes, deletions and additions. 
 
-For now it doesn't support filtering or sorting. But I'm working on it :)
+Features:
+* realtime changes
+* realtime deletions
+* realtime additions
+* sorting via key
+
+For now it doesn't support filtering or sorting by value. But I'm working on it :)
 
 Don't forget that this is still a pre-release so that the API can have breaking changes in very short timelines.
 
