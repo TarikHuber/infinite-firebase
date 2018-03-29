@@ -69,7 +69,7 @@ class InfiniteRTDList extends Component {
   }
 
   loadRows = (startIndex, stopIndex, calls = 0) => {
-    const { firebaseApp, deferTime, deferCalls, path } = this.getProps()
+    const { firebaseApp, deferTime, deferCalls, path, offset } = this.getProps()
     const { pages, ref } = this.state
     const rowsToLoad = stopIndex - startIndex + 1
 
@@ -108,24 +108,19 @@ class InfiniteRTDList extends Component {
 
       if (lastIndex && !ref && pages[lastIndex - 1]) {
 
-        /*
+        if (ref) {
+          ref.off()
+        }
 
-        //EXPERIMENTAL!!!
-
-        const nRef = firebaseApp.database().ref(path).orderByKey().startAt(pages[lastIndex - 1]).limitToFirst(30)
+        const nRef = firebaseApp.database().ref(path).orderByKey().startAt(pages[lastIndex - 1]).limitToFirst(offset)
 
         this.setState({ ref: nRef }, () => {
           nRef.on('child_added', snap => {
-            console.log('test')
-            console.log(snap.val())
             this.loadRows(startIndex, stopIndex + 1, 0)
-            nRef.off()
           })
         })
-        */
+
       }
-
-
     }).catch(e => {
       console.log(e)
     })
