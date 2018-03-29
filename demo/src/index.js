@@ -47,6 +47,7 @@ class Demo extends Component {
   render() {
     return <div style={{ display: 'flex' }}>
       <div>
+        <a href="https://github.com/TarikHuber/infinite-firebase" target='_blank' >GitHub</a>
         <h1>infinite-firebase Demo</h1>
         <InfiniteRTDList
           firebaseApp={firebaseApp}

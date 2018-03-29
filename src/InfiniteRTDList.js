@@ -41,13 +41,16 @@ class InfiniteRTDList extends Component {
   addElement = (snap, pageIndex, lastIndex) => {
     const { pages, list, values } = this.state
 
-    if (list.indexOf(snap.key) === -1) {
-      list.push(snap.key)
+    const key = snap ? snap.key : null
+    const val = snap ? snap.val() : null
+
+    if (list.indexOf(key) === -1) {
+      list.push(key)
 
       return this.setState({
         list,
-        pages: { ...pages, [list.length - 1]: snap.key },
-        values: { ...values, [snap.key]: snap.val() },
+        pages: { ...pages, [list.length - 1]: key },
+        values: { ...values, [key]: val },
         lastIndex
       })
     }
@@ -100,19 +103,27 @@ class InfiniteRTDList extends Component {
         lastIndex = pageIndex + snapshot.numChildren() - 1
       }
 
-
       snapshot.forEach(snap => {
         pageIndex++
         this.addElement(snap, pageIndex, lastIndex)
       })
 
+      //Case when the list is empty
+      if (lastIndex === -1) {
+        for (let index = 0; index < stopIndex; index++) {
+          this.addElement(null, index, lastIndex)
+        }
+      }
+
+      //Case when we are at the end of the list
+      //We should listen here for child added events
       if (lastIndex && !ref && pages[lastIndex - 1]) {
 
         if (ref) {
           ref.off()
         }
 
-        const nRef = firebaseApp.database().ref(path).orderByKey().startAt(pages[lastIndex - 1]).limitToFirst(offset)
+        const nRef = firebaseApp.database().ref(path).orderByKey().startAt(pages[lastIndex - 1]).limitToFirst(offset + offset)
 
         this.setState({ ref: nRef }, () => {
           nRef.on('child_added', snap => {
