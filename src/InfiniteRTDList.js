@@ -55,7 +55,6 @@ class InfiniteRTDList extends Component {
       })
     }
 
-
   }
 
   setValue = (uid, val) => {
@@ -110,9 +109,23 @@ class InfiniteRTDList extends Component {
 
       //Case when the list is empty
       if (lastIndex === -1) {
-        for (let index = 0; index < stopIndex; index++) {
-          this.addElement(null, index, lastIndex)
+
+        this.addElement(null, -1, lastIndex)
+
+        if (ref) {
+          ref.off()
         }
+
+        const nRef = firebaseApp.database().ref(path).orderByKey().limitToFirst(offset)
+
+        this.setState({ list: [] })
+
+        this.setState({ ref: nRef }, () => {
+
+          nRef.on('child_added', snap => {
+            this.loadRows(startIndex, stopIndex + 1, 0)
+          })
+        })
       }
 
       //Case when we are at the end of the list
@@ -123,7 +136,7 @@ class InfiniteRTDList extends Component {
           ref.off()
         }
 
-        const nRef = firebaseApp.database().ref(path).orderByKey().startAt(pages[lastIndex - 1]).limitToFirst(offset + offset)
+        const nRef = firebaseApp.database().ref(path).orderByKey().startAt(pages[lastIndex - 1]).limitToFirst(offset)
 
         this.setState({ ref: nRef }, () => {
           nRef.on('child_added', snap => {
