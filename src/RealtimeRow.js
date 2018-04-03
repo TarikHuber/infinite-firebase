@@ -12,7 +12,7 @@ class RealtimeRow extends Component {
 
 
   componentWillReceiveProps(nextProps) {
-    const { firebaseApp, path, uid, setValue } = nextProps
+    const { firebaseApp, path, uid, setValue, listRef, index } = nextProps
     const { ref } = this.state
 
     if (!ref && uid) {
@@ -26,11 +26,18 @@ class RealtimeRow extends Component {
           value: snap.val(),
         }, () => {
           setValue(uid, snap.val())
+
+          //Update the row height on change
+          //We need this on deletion to hide the deleted row
+          listRef.recomputeRowHeights(index)
         })
 
       })
 
     }
+
+
+
   }
 
 

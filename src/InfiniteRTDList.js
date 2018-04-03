@@ -175,8 +175,8 @@ class InfiniteRTDList extends Component {
 
   }
 
-
-  rowRenderer = ({ key, index, style }) => {
+  getRowProps = (p) => {
+    const { key, index, style } = p
     const { renderRow, firebaseApp } = this.props
     const { list, values, lastIndex } = this.state
 
@@ -202,7 +202,7 @@ class InfiniteRTDList extends Component {
       isDeleted = true
     }
 
-    const props = {
+    return {
       key,
       index,
       style,
@@ -214,13 +214,33 @@ class InfiniteRTDList extends Component {
       isOfset,
       isDeleted,
       setValue: this.setValue,
+      listRef: this.List,
       ...this.props
     }
+
+
+  }
+
+
+  rowRenderer = (p) => {
+
+    const props = this.getRowProps(p)
 
     return <RealtimeRow
       {...props}
     />
 
+  }
+
+  getRowHeight = (p) => {
+
+    const { getRowHeight, listProps } = this.props
+
+    if (getRowHeight !== undefined) {
+      return getRowHeight(this.getRowProps(p))
+    } else {
+      return listProps ? listProps.listRowHeight : 20
+    }
   }
 
   render() {
@@ -248,10 +268,14 @@ class InfiniteRTDList extends Component {
         {({ onRowsRendered, registerChild }) => (
           <List
             onRowsRendered={onRowsRendered}
-            ref={registerChild}
+            ref={list => {
+              this.List = list
+              registerChild(list)
+            }}
             rowCount={count}
             rowRenderer={this.rowRenderer}
             height={height}
+            rowHeight={this.getRowHeight}
             {...listProps}
           />
         )}

@@ -3,12 +3,14 @@ import { render } from 'react-dom'
 import firebaseApp from './firebase'
 import InfiniteRTDList from '../../src'
 import Manipulations from './Manipulations'
+import AutoSizer from 'react-virtualized/dist/commonjs/AutoSizer'
 
 class Demo extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selected: null
+      selected: null,
+      isReverse: false
     };
   }
 
@@ -16,7 +18,7 @@ class Demo extends Component {
 
     const { key, index, style, uid, value, lastIndex, isLoading, isLoaded, isDeleted } = props
 
-    if (isLoaded) {
+    if (isLoaded && !isDeleted) {
       return (
         <div
           onClick={() => {
@@ -41,6 +43,7 @@ class Demo extends Component {
       )
     }
 
+
     return null
   }
 
@@ -56,11 +59,12 @@ class Demo extends Component {
           type="checkbox"
           id="isReverse"
           name="isReverse"
+          checked={isReverse}
           onChange={(e) => {
             this.setState({ isReverse: e.target.checked })
           }}
 
-        /> Reverse order
+        /> Reverse sorting
         <h1>infinite-firebase Demo</h1>
 
         {!isReverse &&
@@ -69,7 +73,8 @@ class Demo extends Component {
             path={'infinite_list'}
             isReverse={false}
             renderRow={this.renderRow}
-            listProps={{ height: 400, width: 700, rowHeight: 20 }}
+            getRowHeight={props => props.isDeleted ? 0 : 20}
+            listProps={{ height: 400, width: 700 }}
           />
         }
         {isReverse &&
@@ -78,7 +83,8 @@ class Demo extends Component {
             path={'infinite_list'}
             isReverse={true}
             renderRow={this.renderRow}
-            listProps={{ height: 400, width: 700, rowHeight: 20 }}
+            getRowHeight={props => props.isDeleted ? 0 : 20}
+            listProps={{ height: 400, width: 700 }}
           />
         }
 
