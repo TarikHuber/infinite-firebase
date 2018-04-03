@@ -47,14 +47,19 @@ class Demo extends Component {
     return null
   }
 
+  getRowHeight = ({ isDeleted }) => {
+    return isDeleted ? 0 : 20
+  }
+
   render() {
     const { isReverse } = this.state
 
     return <div style={{ display: 'flex' }}>
       <div>
         <a href="https://github.com/TarikHuber/infinite-firebase" target='_blank' >GitHub</a>
-        <br />
-        <br />
+
+        <h1>infinite-firebase Demo</h1>
+
         <input
           type="checkbox"
           id="isReverse"
@@ -65,7 +70,10 @@ class Demo extends Component {
           }}
 
         /> Reverse sorting
-        <h1>infinite-firebase Demo</h1>
+
+
+        <br />
+        <br />
 
         {!isReverse &&
           <InfiniteRTDList
@@ -73,7 +81,7 @@ class Demo extends Component {
             path={'infinite_list'}
             isReverse={false}
             renderRow={this.renderRow}
-            getRowHeight={props => props.isDeleted ? 0 : 20}
+            getRowHeight={this.getRowHeight}
             listProps={{ height: 400, width: 700 }}
           />
         }
@@ -83,7 +91,7 @@ class Demo extends Component {
             path={'infinite_list'}
             isReverse={true}
             renderRow={this.renderRow}
-            getRowHeight={props => props.isDeleted ? 0 : 20}
+            getRowHeight={this.getRowHeight}
             listProps={{ height: 400, width: 700 }}
           />
         }
