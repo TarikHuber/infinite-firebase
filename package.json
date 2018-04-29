@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "D": "^1.0.0",
-    "firebase": "^4.12.1",
+    "firebase": "^4.13.1",
     "react-virtualized": "^9.18.5"
   },
   "peerDependencies": {
@@ -28,8 +28,8 @@
   },
   "devDependencies": {
     "nwb": "0.21.x",
-    "react": "^16.3.0",
-    "react-dom": "^16.3.0"
+    "react": "^16.3.2",
+    "react-dom": "^16.3.2"
   },
   "author": "Tarik Huber",
   "homepage": "https://www.react-most-wanted.com",
